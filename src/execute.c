@@ -143,11 +143,19 @@ void run_cd(CDCommand cmd) {
   }
 
   // TODO: Change directory
+  if(chdir(dir) < 0) {
+    perror("ERROR: Could not change working directory");
+    return;
+  }
 
   // TODO: Update the PWD environment variable to be the new current working
   // directory and optionally update OLD_PWD environment variable to be the old
   // working directory.
-  IMPLEMENT_ME();
+  if (setenv("PWD", dir, 1) < 0) {
+    perror("ERROR: Unable to update PWD variable");
+    return;
+  }
+  // IMPLEMENT_ME();
 }
 
 // Sends a signal to all processes contained in a job
