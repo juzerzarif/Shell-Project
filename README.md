@@ -42,7 +42,7 @@ output should match our example result files exactly.</b></em>
 The following features should be implemented in Quash:
 
 - Quash should be able to run executables (the basic function of a shell) with
-  command line parameters
+  command line parameters (Jay)
 
 - If the executable is not specified in the absolute or relative path format
   (starting with sequences of ‘/’, './', or '../'), quash should search the
@@ -70,7 +70,7 @@ Completed: [1]    2342    program1 &
   the standard input from a file. The `>` character is used to redirect the
   standard output to a file while truncating the file. The `>>` string is used
   to redirect the standard output to a file while appending the output to the
-  end of the file.
+  end of the file. (Kyle)
 
 ```bash
 [QUASH]$ echo Hello Quash! > a.txt  # Write "Hello Quash!\n" to a file
@@ -91,7 +91,7 @@ Hey Quash!
 [QUASH]$
 ```
 
-- Quash should support pipes `|`.
+- Quash should support pipes `|`. (Jay)
 
 ```bash
 [QUASH]$ cat src/quash.c | grep running
@@ -111,7 +111,7 @@ external programs of any kind. Quash should support the following built-in
 functions:
 
 - `echo` - Print a string given as an argument. The output format should be
-  the same as bash (a string followed by new line '\\n')
+  the same as bash (a string followed by new line '\\n') (Jay)
 
 ```bash
 [QUASH]$ echo Hello world! 'How are you today?'
@@ -122,7 +122,7 @@ Hello world! How are you today?
 ```
 
 - export - Sets the value of an environment variable. Quash should support
-  reading from and writing to environment variables.
+  reading from and writing to environment variables. (Jay)
 
 ```bash
 [QUASH]$ export PATH=/usr/bin:/bin  # Set the PATH environment variable
@@ -137,7 +137,7 @@ Hello world! How are you today?
 ```
 
 - `cd` - Change current working directory. This updates both the actual working
-  directory and the PWD environment variable.
+  directory and the PWD environment variable. (Both)
 
 ```bash
 [QUASH]$ echo $PWD
@@ -152,7 +152,7 @@ Hello world! How are you today?
 
 - `pwd` - Print the absolute path of the current working directory. Make sure
   you are printing out the actual working directory and not just the PWD
-  environment variable.
+  environment variable. (Both)
 
 ```bash
 [QUASH]$ pwd                # Print the working directory
@@ -183,7 +183,7 @@ Welcome...
 - `jobs` - Should print all of the currently running background processes in the
   format: "[JOBID] PID COMMAND" where JOBID is a unique positive integer quash
   assigns to the job to identify it, PID is the PID of the child process used
-  for the job, and COMMAND is the command used to invoke the job.
+  for the job, and COMMAND is the command used to invoke the job. (Kyle)
 
 ```bash
 [QUASH]$ find -type f | grep '*.c' > out.txt &

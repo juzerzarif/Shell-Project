@@ -10,6 +10,7 @@
 #include "execute.h"
 
 #include <stdio.h>
+#include <limits.h>
 
 #include "quash.h"
 
@@ -26,14 +27,11 @@
 
 // Return a string containing the current working directory.
 char* get_current_directory(bool* should_free) {
-  // TODO: Get the current working directory. This will fix the prompt path.
-  // HINT: This should be pretty simple
-  IMPLEMENT_ME();
-
+  
   // Change this to true if necessary
-  *should_free = false;
+  *should_free = true;
 
-  return "get_current_directory()";
+  return getcwd(NULL, 0);
 }
 
 // Returns the value of an environment variable env_var
