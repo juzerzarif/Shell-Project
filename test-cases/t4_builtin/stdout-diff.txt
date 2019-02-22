@@ -1,0 +1,8 @@
+1,3c1,3
+< /mnt/c/Users/Limbo/Documents/Shell-Project/test-cases/t4_builtin/sandbox
+< /mnt/c/Users/Limbo/Documents/Shell-Project/test-cases/t4_builtin/sandbox
+< hello\\n 
+---
+> sandbox
+> sandbox
+> hello

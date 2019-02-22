@@ -1,0 +1,4 @@
+2c2
+< /home/juzerzarif
+---
+> /mnt/c/Users/Limbo/Documents/Shell-Project/test-cases/t2_export/sandbox
