@@ -307,10 +307,23 @@ void create_process(CommandHolder holder) {
 
   // TODO: Setup pipes, redirects, and new process
   IMPLEMENT_ME();
-
-  parent_run_command(holder.cmd); // This should be done in the parent branch of
+  int p1[2];
+  if (pipe(p1) < 0)
+  {
+    perror("Error creating pipe");
+  }
+  
+  pid_t pid = fork();
+  if (pid == 0)
+  {
+    child_run_command(holder.cmd); // This should be done in the child branch of a fork
+  }
+  else
+  {
+    parent_run_command(holder.cmd); // This should be done in the parent branch of
                                   // a fork
-  child_run_command(holder.cmd); // This should be done in the child branch of a fork
+  }
+  
 }
 
 // Run a list of commands
