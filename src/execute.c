@@ -90,14 +90,10 @@ void run_generic(GenericCommand cmd) {
   char* exec = cmd.args[0];
   char** args = cmd.args;
 
-  // TODO: Remove warning silencers
-  (void) exec; // Silence unused variable warning
-  (void) args; // Silence unused variable warning
-
-  // TODO: Implement run generic
-  IMPLEMENT_ME();
-
-  perror("ERROR: Failed to execute program");
+  if ( (execvp(exec, args)) < 0)
+  {
+    perror("ERROR: Failed to execute program");
+  }
 }
 
 // Print strings
@@ -105,12 +101,13 @@ void run_echo(EchoCommand cmd) {
   // Print an array of strings. The args array is a NULL terminated (last
   // string is always NULL) list of strings.
   char** str = cmd.args;
-
-  // TODO: Remove warning silencers
-  (void) str; // Silence unused variable warning
-
-  // TODO: Implement echo
-  IMPLEMENT_ME();
+  
+  for(int i=0; str[i] != NULL; i++)
+  {
+    printf("%s ", str[i]);
+  }
+  
+  printf("\n");
 
   // Flush the buffer before returning
   fflush(stdout);
@@ -122,13 +119,9 @@ void run_export(ExportCommand cmd) {
   const char* env_var = cmd.env_var;
   const char* val = cmd.val;
 
-  // TODO: Remove warning silencers
-  (void) env_var; // Silence unused variable warning
-  (void) val;     // Silence unused variable warning
-
-  // TODO: Implement export.
-  // HINT: This should be quite simple.
-  IMPLEMENT_ME();
+  if (setenv(env_var, val, 1) < 0) {
+    perror("ERROR: Unable to set environment variable");
+  }
 }
 
 // Changes the current working directory
