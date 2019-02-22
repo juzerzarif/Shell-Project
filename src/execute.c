@@ -90,9 +90,13 @@ void run_generic(GenericCommand cmd) {
   char* exec = cmd.args[0];
   char** args = cmd.args;
 
-  if ( (execvp(exec, args)) < 0)
+  pid_t pid = fork();
+  if (pid == 0)
   {
-    perror("ERROR: Failed to execute program");
+    if ( (execvp(exec, args)) < 0)
+    {
+      perror("ERROR: Failed to execute program");
+    }
   }
 }
 
