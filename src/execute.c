@@ -289,6 +289,10 @@ void parent_run_command(Command cmd) {
  *
  * @sa Command CommandHolder
  */
+
+int pipes[2][2];
+bool currPipe = false;
+
 void create_process(CommandHolder holder) {
   // Read the flags field from the parser
   bool p_in  = holder.flags & PIPE_IN;
@@ -299,29 +303,48 @@ void create_process(CommandHolder holder) {
                                                // is true
 
   // TODO: Remove warning silencers
-  (void) p_in;  // Silence unused variable warning
-  (void) p_out; // Silence unused variable warning
   (void) r_in;  // Silence unused variable warning
   (void) r_out; // Silence unused variable warning
   (void) r_app; // Silence unused variable warning
 
   // TODO: Setup pipes, redirects, and new process
   IMPLEMENT_ME();
-  int p1[2];
-  if (pipe(p1) < 0)
+  if (pipe(pipes[currPipe]) < 0)
   {
-    perror("Error creating pipe");
+    perror("Error creating pipes");
   }
   
   pid_t pid = fork();
+
+  if (p_in)
+  {
+    dup2(pipes[!currPipe][0], STDIN_FILENO);
+  }
+  else
+  {
+    close(pipes[!currPipe][0]);
+  }
+  if (p_out)
+  {
+    dup2(pipes[currPipe][1], STDOUT_FILENO);
+  }
+  else
+  {
+    close(pipes[currPipe][1]);
+  }
+  close(pipes[!currPipe][1]);
+  close(pipes[currPipe][0]);
+
   if (pid == 0)
   {
     child_run_command(holder.cmd); // This should be done in the child branch of a fork
+    currPipe = !currPipe;
   }
   else
   {
     parent_run_command(holder.cmd); // This should be done in the parent branch of
                                   // a fork
+    currPipe = !currPipe;
   }
   
 }
