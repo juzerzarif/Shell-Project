@@ -313,8 +313,6 @@ void create_process(CommandHolder holder) {
   {
     perror("Error creating pipes");
   }
-  
-  pid_t pid = fork();
 
   if (p_in)
   {
@@ -335,16 +333,18 @@ void create_process(CommandHolder holder) {
   close(pipes[!currPipe][1]);
   close(pipes[currPipe][0]);
 
+  currPipe = !currPipe;
+
+  pid_t pid = fork();
   if (pid == 0)
   {
     child_run_command(holder.cmd); // This should be done in the child branch of a fork
-    currPipe = !currPipe;
+    exit(EXIT_SUCCESS);
   }
   else
   {
     parent_run_command(holder.cmd); // This should be done in the parent branch of
                                   // a fork
-    currPipe = !currPipe;
   }
   
 }
