@@ -293,6 +293,21 @@ void parent_run_command(Command cmd) {
 int pipes[2][2];
 bool currPipe = false;
 
+IMPLEMENT_DEQUE_STRUCT(ProcessDeque, pid_t);
+IMPLEMENT_DEQUE(ProcessDeque, pid_t);
+
+typedef struct Job {
+  int jobID;
+  char* command;
+  ProcessDeque processQueue;
+} Job;
+
+IMPLEMENT_DEQUE_STRUCT(JobsDeque, Job);
+IMPLEMENT_DEQUE(JobsDeque, Job);
+
+Job currentJob;
+int jobCount = 0;
+
 void create_process(CommandHolder holder) {
   // Read the flags field from the parser
   bool p_in  = holder.flags & PIPE_IN;
@@ -340,6 +355,7 @@ void create_process(CommandHolder holder) {
   }
   else
   {
+    push_back_ProcessDeque(currentJob.processQueue, pid);
     parent_run_command(holder.cmd); // This should be done in the parent branch of
                                   // a fork
   }
@@ -361,6 +377,12 @@ void run_script(CommandHolder* holders) {
 
   CommandType type;
 
+  currentJob.jobID = jobCount;
+  currentJob.command = get_command_string();
+  currentJob.processQueue = new_ProcessDeque(1);
+
+  jobCount++;
+
   // Run all commands in the `holder` array
   for (int i = 0; (type = get_command_holder_type(holders[i])) != EOC; ++i)
     create_process(holders[i]);
@@ -368,7 +390,16 @@ void run_script(CommandHolder* holders) {
   if (!(holders[0].flags & BACKGROUND)) {
     // Not a background Job
     // TODO: Wait for all processes under the job to complete
-    IMPLEMENT_ME();
+    // IMPLEMENT_ME();
+    while (!is_empty_ProcessDeque(currentJob.processQueue))
+    {
+      pid_t pid = pop_front_ProcessDeque(currentJob.processQueue);
+      int status;
+      if((waitpid(pid, &status, 0)) == -1)
+      {
+        perror("Process encountered an error");
+      }
+    }
   }
   else {
     // A background job.
