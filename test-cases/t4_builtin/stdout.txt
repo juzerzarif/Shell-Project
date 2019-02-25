@@ -1,4 +1,0 @@
-/mnt/c/Users/Limbo/Documents/Shell-Project/test-cases/t4_builtin/sandbox
-/mnt/c/Users/Limbo/Documents/Shell-Project/test-cases/t4_builtin/sandbox
-hello\\n 
-hello 

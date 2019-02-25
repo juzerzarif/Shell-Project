@@ -1,6 +1,15 @@
-dir1
-dir2
-dir3
-lorem_ipsum.txt
-valgrind_expected.txt
+1
+1
+0
+1
+1
+0
+1
+0
+1
+0
+1
+0
+1
+0
 Hello World

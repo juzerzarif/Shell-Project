@@ -1,4 +1,25 @@
-1,23d0
+1,50d0
+< 1
+< 1
+< 0
+< 1
+< 0
+< 1
+< 1
+< 0
+< 1
+< 0
+< 1
+< 0
+< 1
+< 0
+< 1
+< 0
+< 1
+< 0
+< 1
+< 0
+< 1
 < ==#==
 < ==#== 
 < ==#== All heap blocks were freed -- no leaks are possible
@@ -22,3 +43,9 @@
 < ==#==   total heap usage: # allocs, 0 frees, 0 bytes allocated
 < ==#==   total heap usage: # allocs, 0 frees, # bytes allocated
 < ==#==   total heap usage: # allocs, # frees, # bytes allocated
+< 1
+< 0
+< 1
+< 0
+< 1
+< 0

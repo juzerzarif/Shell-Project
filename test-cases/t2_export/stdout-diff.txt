@@ -1,4 +1,19 @@
-2c2
+1d0
+< 1
+3,16c2
+< 1
+< 0
+< 1
+< 0
+< 1
 < /home/juzerzarif
+< 1
+< 0
+< 1
+< 0
+< 1
+< 0
+< 1
+< 0
 ---
 > /mnt/c/Users/Limbo/Documents/Shell-Project/test-cases/t2_export/sandbox

@@ -308,36 +308,33 @@ void create_process(CommandHolder holder) {
   (void) r_app; // Silence unused variable warning
 
   // TODO: Setup pipes, redirects, and new process
-  IMPLEMENT_ME();
-  if (pipe(pipes[currPipe]) < 0)
+  // IMPLEMENT_ME();
+  if(p_out) //only create pipes if needed
   {
-    perror("Error creating pipes");
+    if (pipe(pipes[currPipe]) < 0)
+    {
+      perror("Error creating pipes");
+    }
   }
-
-  if (p_in)
-  {
-    dup2(pipes[!currPipe][0], STDIN_FILENO);
-  }
-  else
-  {
-    close(pipes[!currPipe][0]);
-  }
-  if (p_out)
-  {
-    dup2(pipes[currPipe][1], STDOUT_FILENO);
-  }
-  else
-  {
-    close(pipes[currPipe][1]);
-  }
-  close(pipes[!currPipe][1]);
-  close(pipes[currPipe][0]);
-
-  currPipe = !currPipe;
 
   pid_t pid = fork();
+
   if (pid == 0)
   {
+    if (p_in) //There was a pipe created last time
+    {
+      close(pipes[!currPipe][1]);
+      dup2(pipes[!currPipe][0], STDIN_FILENO);
+    }
+
+    if (p_out) //We need to ridirect standard output for this process
+    {
+      close(pipes[currPipe][0]);
+      dup2(pipes[currPipe][1], STDOUT_FILENO);
+    }
+    
+    currPipe = !currPipe; //switch which pipe will be used next time
+
     child_run_command(holder.cmd); // This should be done in the child branch of a fork
     exit(EXIT_SUCCESS);
   }

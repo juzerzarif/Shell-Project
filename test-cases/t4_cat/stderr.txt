@@ -1,32 +1,60 @@
-==2013== Memcheck, a memory error detector
-==2013== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
-==2013== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
-==2013== Command: /mnt/c/Users/Limbo/Documents/Shell-Project/quash
-==2013== 
-==2013== error calling PR_SET_PTRACER, vgdb might block
+==1025== Memcheck, a memory error detector
+==1025== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==1025== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==1025== Command: /mnt/c/Users/Limbo/Documents/Shell-Project/quash
+==1025== 
+==1025== error calling PR_SET_PTRACER, vgdb might block
 IMPLEMENT ME: src/execute.c(line 56): check_jobs_bg_status()
-IMPLEMENT ME: src/execute.c(line 309): create_process()
-IMPLEMENT ME: src/execute.c(line 338): run_script()
+IMPLEMENT ME: src/execute.c(line 375): run_script()
 IMPLEMENT ME: src/execute.c(line 56): check_jobs_bg_status()
-IMPLEMENT ME: src/execute.c(line 309): create_process()
-IMPLEMENT ME: src/execute.c(line 338): run_script()
+==1092== 
+==1092== HEAP SUMMARY:
+==1092==     in use at exit: 0 bytes in 0 blocks
+==1092==   total heap usage: 8 allocs, 8 frees, 18,826 bytes allocated
+==1092== 
+==1092== All heap blocks were freed -- no leaks are possible
+==1092== 
+==1092== For counts of detected and suppressed errors, rerun with: -v
+==1092== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+IMPLEMENT ME: src/execute.c(line 375): run_script()
 IMPLEMENT ME: src/execute.c(line 56): check_jobs_bg_status()
-IMPLEMENT ME: src/execute.c(line 309): create_process()
-IMPLEMENT ME: src/execute.c(line 338): run_script()
+==1099== 
+==1099== HEAP SUMMARY:
+==1099==     in use at exit: 0 bytes in 0 blocks
+==1099==   total heap usage: 14 allocs, 14 frees, 20,508 bytes allocated
+==1099== 
+==1099== All heap blocks were freed -- no leaks are possible
+==1099== 
+==1099== For counts of detected and suppressed errors, rerun with: -v
+==1099== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+IMPLEMENT ME: src/execute.c(line 375): run_script()
 IMPLEMENT ME: src/execute.c(line 56): check_jobs_bg_status()
-IMPLEMENT ME: src/execute.c(line 309): create_process()
-IMPLEMENT ME: src/execute.c(line 338): run_script()
-IMPLEMENT ME: src/execute.c(line 56): check_jobs_bg_status()
-IMPLEMENT ME: src/execute.c(line 309): create_process()
-IMPLEMENT ME: src/execute.c(line 338): run_script()
-==2093== error calling PR_SET_PTRACER, vgdb might block
-==2013== 
-==2013== HEAP SUMMARY:
-==2013==     in use at exit: 0 bytes in 0 blocks
-==2013==   total heap usage: 34 allocs, 34 frees, 26,976 bytes allocated
-==2013== 
-==2013== All heap blocks were freed -- no leaks are possible
-==2013== 
-==2013== For counts of detected and suppressed errors, rerun with: -v
-==2013== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
-cat: li2.txt: No such file or directory
+IMPLEMENT ME: src/execute.c(line 375): run_script()
+input in flex scanner failed
+==1025== 
+==1025== HEAP SUMMARY:
+==1025==     in use at exit: 0 bytes in 0 blocks
+==1025==   total heap usage: 33 allocs, 33 frees, 27,392 bytes allocated
+==1025== 
+==1025== All heap blocks were freed -- no leaks are possible
+==1025== 
+==1025== For counts of detected and suppressed errors, rerun with: -v
+==1025== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==1104== 
+==1104== HEAP SUMMARY:
+==1104==     in use at exit: 0 bytes in 0 blocks
+==1104==   total heap usage: 24 allocs, 24 frees, 23,488 bytes allocated
+==1104== 
+==1104== All heap blocks were freed -- no leaks are possible
+==1104== 
+==1104== For counts of detected and suppressed errors, rerun with: -v
+==1104== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==1111== 
+==1111== HEAP SUMMARY:
+==1111==     in use at exit: 0 bytes in 0 blocks
+==1111==   total heap usage: 29 allocs, 29 frees, 24,864 bytes allocated
+==1111== 
+==1111== All heap blocks were freed -- no leaks are possible
+==1111== 
+==1111== For counts of detected and suppressed errors, rerun with: -v
+==1111== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
