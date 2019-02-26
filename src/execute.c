@@ -332,11 +332,6 @@ void create_process(CommandHolder holder)
   bool r_app = holder.flags & REDIRECT_APPEND; // This can only be true if r_out
                                                // is true
 
-  // TODO: Remove warning silencers
-  (void)r_in;  // Silence unused variable warning
-  (void)r_out; // Silence unused variable warning
-  (void)r_app; // Silence unused variable warning
-
   // TODO: Setup pipes, redirects, and new process
   bool currPipeCopy = currPipe; //create a copy of the current pipe boolean so we don't lose
                                 //its value when we flip the bool later
