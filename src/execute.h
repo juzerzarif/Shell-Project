@@ -167,4 +167,6 @@ void run_jobs();
  */
 void run_script(CommandHolder* holders);
 
+void setup_execute();
+
 #endif

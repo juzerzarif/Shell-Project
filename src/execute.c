@@ -21,6 +21,27 @@
 #define IMPLEMENT_ME() \
   fprintf(stderr, "IMPLEMENT ME: %s(line %d): %s()\n", __FILE__, __LINE__, __FUNCTION__)
 
+int pipes[2][2];
+bool currPipe = false;
+
+IMPLEMENT_DEQUE_STRUCT(ProcessDeque, pid_t);
+IMPLEMENT_DEQUE(ProcessDeque, pid_t);
+
+typedef struct Job
+{
+  int jobID;
+  char *command;
+  ProcessDeque processQueue;
+} Job;
+
+IMPLEMENT_DEQUE_STRUCT(JobsDeque, Job);
+IMPLEMENT_DEQUE(JobsDeque, Job);
+
+JobsDeque bgJobQueue;
+
+Job currentJob;
+int jobCount = 1;
+
 /***************************************************************************
  * Interface Functions
  ***************************************************************************/
@@ -191,6 +212,15 @@ void run_jobs()
 {
   // TODO: Print background jobs
   IMPLEMENT_ME();
+  size_t size = length_JobsDeque(&bgJobQueue);
+  
+  for(int i=0; i<size; i++)
+  {
+    Job temp = pop_front_JobsDeque(&bgJobQueue);
+    pid_t pid = peek_front_ProcessDeque(&temp.processQueue);
+    print_job(temp.jobID, pid, temp.command);
+    push_back_JobsDeque(&bgJobQueue, temp);
+  }
 
   // Flush the buffer before returning
   fflush(stdout);
@@ -303,24 +333,10 @@ void parent_run_command(Command cmd)
  * @sa Command CommandHolder
  */
 
-int pipes[2][2];
-bool currPipe = false;
-
-IMPLEMENT_DEQUE_STRUCT(ProcessDeque, pid_t);
-IMPLEMENT_DEQUE(ProcessDeque, pid_t);
-
-typedef struct Job
+void setup_execute()
 {
-  int jobID;
-  char *command;
-  ProcessDeque processQueue;
-} Job;
-
-IMPLEMENT_DEQUE_STRUCT(JobsDeque, Job);
-IMPLEMENT_DEQUE(JobsDeque, Job);
-
-Job currentJob;
-int jobCount = 0;
+  bgJobQueue = new_JobsDeque(1);
+}
 
 void create_process(CommandHolder holder)
 {
@@ -439,6 +455,7 @@ void run_script(CommandHolder *holders)
     // A background job.
     // TODO: Push the new job to the job queue
     IMPLEMENT_ME();
+    push_back_JobsDeque(&bgJobQueue, currentJob);
 
     // TODO: Once jobs are implemented, uncomment and fill the following line
     // print_job_bg_start(job_id, pid, cmd);
