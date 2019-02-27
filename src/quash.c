@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
     fflush(stdout);
   }
 
-  setup_execute();
+  // setup_execute();
   atexit(destroy_parser);
   atexit(destroy_memory_pool);
 

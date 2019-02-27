@@ -30,6 +30,7 @@ IMPLEMENT_DEQUE(ProcessDeque, pid_t);
 typedef struct Job
 {
   int jobID;
+  pid_t pid;
   char *command;
   ProcessDeque processQueue;
 } Job;
@@ -39,7 +40,7 @@ IMPLEMENT_DEQUE(JobsDeque, Job);
 
 JobsDeque bgJobQueue;
 
-Job currentJob;
+// Job currentJob;
 int jobCount = 1;
 
 /***************************************************************************
@@ -77,7 +78,31 @@ void check_jobs_bg_status()
   // TODO: Check on the statuses of all processes belonging to all background
   // jobs. This function should remove jobs from the jobs queue once all
   // processes belonging to a job have completed.
-  IMPLEMENT_ME();
+  // IMPLEMENT_ME();
+  while (!is_empty_JobsDeque(&bgJobQueue))
+  {
+    Job tmp = peek_front_JobsDeque(&bgJobQueue);
+    while (!is_empty_ProcessDeque(&tmp.processQueue))
+    {
+      int status;
+      pid_t pid1 = peek_front_ProcessDeque(&tmp.processQueue);
+      pid_t return_pid = waitpid(pid1, &status, WNOHANG);
+
+      if (return_pid == pid1)
+      {
+        pop_front_ProcessDeque(&tmp.processQueue);
+      }
+      else
+      {
+        return;
+      }
+      
+    }
+
+    pop_front_JobsDeque(&bgJobQueue);
+    jobCount--;
+    print_job_bg_complete(tmp.jobID, tmp.pid, tmp.command);
+  }
 
   // TODO: Once jobs are implemented, uncomment and fill the following line
   // print_job_bg_complete(job_id, pid, cmd);
@@ -211,14 +236,13 @@ void run_pwd()
 void run_jobs()
 {
   // TODO: Print background jobs
-  IMPLEMENT_ME();
+  // IMPLEMENT_ME();
   size_t size = length_JobsDeque(&bgJobQueue);
   
   for(int i=0; i<size; i++)
   {
     Job temp = pop_front_JobsDeque(&bgJobQueue);
-    pid_t pid = peek_front_ProcessDeque(&temp.processQueue);
-    print_job(temp.jobID, pid, temp.command);
+    print_job(temp.jobID, temp.pid, temp.command);
     push_back_JobsDeque(&bgJobQueue, temp);
   }
 
@@ -338,7 +362,7 @@ void setup_execute()
   bgJobQueue = new_JobsDeque(1);
 }
 
-void create_process(CommandHolder holder)
+void create_process(CommandHolder holder, Job *currentJob)
 {
   // Read the flags field from the parser
   bool p_in = holder.flags & PIPE_IN;
@@ -396,7 +420,7 @@ void create_process(CommandHolder holder)
   }
   else
   {
-    push_back_ProcessDeque(&currentJob.processQueue, pid);
+    push_back_ProcessDeque(&(*currentJob).processQueue, pid);
     parent_run_command(holder.cmd); // This should be done in the parent branch of
                                     // a fork
   }
@@ -408,9 +432,16 @@ void create_process(CommandHolder holder)
   }
 }
 
+bool firstRun = true;
 // Run a list of commands
 void run_script(CommandHolder *holders)
 {
+  if (firstRun)
+  {
+    bgJobQueue = new_JobsDeque(1);
+    firstRun = false;
+  }
+
   if (holders == NULL)
     return;
 
@@ -424,6 +455,8 @@ void run_script(CommandHolder *holders)
   }
 
   CommandType type;
+  
+  Job currentJob;
 
   currentJob.jobID = jobCount;
   currentJob.command = get_command_string();
@@ -433,7 +466,9 @@ void run_script(CommandHolder *holders)
 
   // Run all commands in the `holder` array
   for (int i = 0; (type = get_command_holder_type(holders[i])) != EOC; ++i)
-    create_process(holders[i]);
+    create_process(holders[i], &currentJob);
+
+  currentJob.pid = peek_front_ProcessDeque(&currentJob.processQueue);
 
   if (!(holders[0].flags & BACKGROUND))
   {
@@ -449,15 +484,16 @@ void run_script(CommandHolder *holders)
         perror("Process encountered an error");
       }
     }
+    jobCount--;
   }
   else
   {
     // A background job.
     // TODO: Push the new job to the job queue
-    IMPLEMENT_ME();
+    // IMPLEMENT_ME();
     push_back_JobsDeque(&bgJobQueue, currentJob);
 
     // TODO: Once jobs are implemented, uncomment and fill the following line
-    // print_job_bg_start(job_id, pid, cmd);
+    print_job_bg_start(currentJob.jobID, currentJob.pid, currentJob.command);
   }
 }
