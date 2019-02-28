@@ -21,11 +21,15 @@
 #define IMPLEMENT_ME() \
   fprintf(stderr, "IMPLEMENT ME: %s(line %d): %s()\n", __FILE__, __LINE__, __FUNCTION__)
 
-int pipes[2][2];
-bool currPipe = false;
+/***************************************************************************
+ * Global variables
+ ***************************************************************************/
 
-IMPLEMENT_DEQUE_STRUCT(ProcessDeque, pid_t);
-IMPLEMENT_DEQUE(ProcessDeque, pid_t);
+int pipes[2][2]; //two pipes for i/o redirection between children
+bool currPipe = false; //current pipe being written to - used in create_process
+
+IMPLEMENT_DEQUE_STRUCT(ProcessDeque, pid_t); //Process queue for storing 
+IMPLEMENT_DEQUE(ProcessDeque, pid_t);        //PIDs of child processes
 
 typedef struct Job
 {
@@ -35,11 +39,12 @@ typedef struct Job
   ProcessDeque processQueue;
 } Job;
 
-IMPLEMENT_DEQUE_STRUCT(JobsDeque, Job);
-IMPLEMENT_DEQUE(JobsDeque, Job);
+IMPLEMENT_DEQUE_STRUCT(JobsDeque, Job); //Job queue for storing 
+IMPLEMENT_DEQUE(JobsDeque, Job);        //background jobs
 
 JobsDeque bgJobQueue;
 
+// Destructor for a Job object
 void destroyJob(Job job)
 {
   if(job.command != NULL)
@@ -57,9 +62,8 @@ void destroyJob(Job job)
 // Return a string containing the current working directory.
 char *get_current_directory(bool *should_free)
 {
-
-  // Change this to true if necessary
-  *should_free = true;
+  *should_free = true; //the char* returned by getcwd needs to be free'd
+                       //since we didn't pass a buffer size to getcwd
 
   return getcwd(NULL, 0);
 }
@@ -67,25 +71,12 @@ char *get_current_directory(bool *should_free)
 // Returns the value of an environment variable env_var
 const char *lookup_env(const char *env_var)
 {
-  // TODO: Lookup environment variables. This is required for parser to be able
-  // to interpret variables from the command line and display the prompt
-  // correctly
-  // HINT: This should be pretty simple
-  // IMPLEMENT_ME();
-
-  // TODO: Remove warning silencers
-  return getenv(env_var); // Silence unused variable warning
-
-  // return "???";
+  return getenv(env_var);
 }
 
 // Check the status of background jobs
 void check_jobs_bg_status()
 {
-  // TODO: Check on the statuses of all processes belonging to all background
-  // jobs. This function should remove jobs from the jobs queue once all
-  // processes belonging to a job have completed.
-  // IMPLEMENT_ME();
   size_t jobSize = length_JobsDeque(&bgJobQueue);
 
   for (int i=0; i<jobSize; i++)
@@ -98,18 +89,19 @@ void check_jobs_bg_status()
     {
       int status;
       pid_t process_pid = pop_front_ProcessDeque(&(tmp.processQueue));
-      pid_t return_pid = waitpid(process_pid, &status, WNOHANG);
+      pid_t return_pid = waitpid(process_pid, &status, WNOHANG); //check status of process with pid process_pid
 
       if (return_pid == 0) //process is still running
       {
         push_back_ProcessDeque(&(tmp.processQueue), process_pid);
       }
-      else if (return_pid == -1)
+      else if (return_pid == -1) //something went wrong :O
       {
         perror("Error in finishing process");
       }
     }
 
+    // if all processes have been popped, then the job is complete
     if (is_empty_ProcessDeque(&(tmp.processQueue)))
     {
       print_job_bg_complete(tmp.jobID, tmp.pid, tmp.command);
@@ -152,11 +144,8 @@ void print_job_bg_complete(int job_id, pid_t pid, const char *cmd)
 // absolute path
 void run_generic(GenericCommand cmd)
 {
-  // Execute a program with a list of arguments. The `args` array is a NULL
-  // terminated (last string is always NULL) list of strings. The first element
-  // in the array is the executable
   char *exec = cmd.args[0];
-  char **args = cmd.args;
+  char **args = cmd.args; //NULL terminated list of arguments
 
   execvp(exec, args);
 }
@@ -164,9 +153,7 @@ void run_generic(GenericCommand cmd)
 // Print strings
 void run_echo(EchoCommand cmd)
 {
-  // Print an array of strings. The args array is a NULL terminated (last
-  // string is always NULL) list of strings.
-  char **str = cmd.args;
+  char **str = cmd.args; //NULL terminated list of strings
 
   for (int i = 0; str[i] != NULL; i++)
   {
@@ -182,7 +169,6 @@ void run_echo(EchoCommand cmd)
 // Sets an environment variable
 void run_export(ExportCommand cmd)
 {
-  // Write an environment variable
   const char *env_var = cmd.env_var;
   const char *val = cmd.val;
 
@@ -205,22 +191,19 @@ void run_cd(CDCommand cmd)
     return;
   }
 
-  // TODO: Change directory
+  // change directory
   if (chdir(dir) < 0)
   {
     perror("ERROR: Could not change working directory");
     return;
   }
 
-  // TODO: Update the PWD environment variable to be the new current working
-  // directory and optionally update OLD_PWD environment variable to be the old
-  // working directory.
+  // set PWD variable
   if (setenv("PWD", dir, 1) < 0)
   {
     perror("ERROR: Unable to update PWD variable");
     return;
   }
-  // IMPLEMENT_ME();
 }
 
 // Sends a signal to all processes contained in a job
@@ -229,19 +212,38 @@ void run_kill(KillCommand cmd)
   int signal = cmd.sig;
   int job_id = cmd.job;
 
-  // TODO: Remove warning silencers
-  (void)signal; // Silence unused variable warning
-  (void)job_id; // Silence unused variable warning
+  if (is_empty_JobsDeque(&bgJobQueue))
+  {
+    return;
+  }
 
-  // TODO: Kill all processes associated with a background job
-  IMPLEMENT_ME();
+  size_t jobSize = length_JobsDeque(&bgJobQueue);
+
+  for (int i=0; i<jobSize; i++)
+  {
+    Job tmp = pop_front_JobsDeque(&bgJobQueue);
+
+    if(job_id == tmp.jobID)
+    {
+      size_t pidSize = length_ProcessDeque(&(tmp.processQueue));
+
+      for (int j=0; j<pidSize; j++)
+      {
+        pid_t process_pid = pop_front_ProcessDeque(&(tmp.processQueue));
+        
+        kill(process_pid, signal);
+
+        push_back_ProcessDeque(&(tmp.processQueue), process_pid);
+      }
+    } 
+
+    push_back_JobsDeque(&bgJobQueue, tmp);   
+  }
 }
 
 // Prints the current working directory to stdout
 void run_pwd()
 {
-  // TODO: Print the current working directory
-  // IMPLEMENT_ME();
   bool freeDir = false;
   char* dir = get_current_directory(&freeDir);
 
@@ -258,8 +260,6 @@ void run_pwd()
 // Prints all background jobs currently in the job list to stdout
 void run_jobs()
 {
-  // TODO: Print background jobs
-  // IMPLEMENT_ME();
   size_t size = length_JobsDeque(&bgJobQueue);
   
   for(int i=0; i<size; i++)
@@ -391,7 +391,7 @@ void create_process(CommandHolder holder, Job *currentJob)
   bool r_app = holder.flags & REDIRECT_APPEND; // This can only be true if r_out
                                                // is true
 
-  // TODO: Setup pipes, redirects, and new process
+  // Setup pipes, redirects, and new process
   bool currPipeCopy = currPipe; //create a copy of the current pipe boolean so we don't lose
                                 //its value when we flip the bool later
 
@@ -414,7 +414,7 @@ void create_process(CommandHolder holder, Job *currentJob)
       dup2(pipes[!currPipeCopy][0], STDIN_FILENO);
     }
 
-    if (r_in)
+    if (r_in) // Read standard input from a file
     {
       int in = open(holder.redirect_in, O_RDONLY);
       dup2(in, STDIN_FILENO);
@@ -427,9 +427,12 @@ void create_process(CommandHolder holder, Job *currentJob)
       dup2(pipes[currPipeCopy][1], STDOUT_FILENO);
     }
 
-    if (r_out)
+    if (r_out) // Write standard output to a file
     {
-      int out = r_app ?  open(holder.redirect_out, O_WRONLY | O_APPEND | O_CREAT) : open(holder.redirect_out, O_WRONLY | O_CREAT);
+	    int flags = r_app ? (O_WRONLY | O_APPEND | O_CREAT) : (O_WRONLY | O_TRUNC | O_CREAT); // check append flag to append
+                                                                                            // or truncate to file
+      int out = open(holder.redirect_out, flags, 0664); // 0664 gives read/write permission to owner and group and read
+                                                        // permission to other users if file has to be created for open()
       dup2(out, STDOUT_FILENO);
       close(out);
     }
@@ -447,6 +450,7 @@ void create_process(CommandHolder holder, Job *currentJob)
                                     // a fork
   }
 
+  // close pipes used to read standard input from
   if (p_in)
   {
     close(pipes[!currPipeCopy][0]);
@@ -454,11 +458,11 @@ void create_process(CommandHolder holder, Job *currentJob)
   }
 }
 
-// bool firstRun = true;
 // Run a list of commands
 void run_script(CommandHolder *holders)
 {
-  static bool firstRun = true;
+  // initialize the background job queue when run_script runs for the first time
+  static bool firstRun = true; 
 
   if (firstRun)
   {
@@ -466,11 +470,13 @@ void run_script(CommandHolder *holders)
     firstRun = false;
   }
 
+  // check if holders are valid
   if (holders == NULL)
     return;
 
   check_jobs_bg_status();
 
+  // if command is exit or quit
   if (get_command_holder_type(holders[0]) == EXIT &&
       get_command_holder_type(holders[1]) == EOC)
   {
@@ -480,6 +486,7 @@ void run_script(CommandHolder *holders)
 
   CommandType type;
   
+  // job struct holding information about this job
   Job currentJob;
 
   currentJob.jobID = 0;
@@ -490,13 +497,12 @@ void run_script(CommandHolder *holders)
   for (int i = 0; (type = get_command_holder_type(holders[i])) != EOC; ++i)
     create_process(holders[i], &currentJob);
 
-  currentJob.pid = peek_front_ProcessDeque(&currentJob.processQueue);
+  currentJob.pid = peek_front_ProcessDeque(&currentJob.processQueue); // job pid is the pid of the first process
 
   if (!(holders[0].flags & BACKGROUND))
   {
     // Not a background Job
-    // TODO: Wait for all processes under the job to complete
-    // IMPLEMENT_ME();
+    // Wait for all processes under the job to complete
     while (!is_empty_ProcessDeque(&currentJob.processQueue))
     {
       pid_t pid = pop_front_ProcessDeque(&currentJob.processQueue);
@@ -513,8 +519,7 @@ void run_script(CommandHolder *holders)
   else
   {
     // A background job.
-    // TODO: Push the new job to the job queue
-    // IMPLEMENT_ME();
+    // Push the new job to the job queue
     if (is_empty_JobsDeque(&bgJobQueue))
     {
       currentJob.jobID = 1;
@@ -526,8 +531,7 @@ void run_script(CommandHolder *holders)
     }
     
     push_back_JobsDeque(&bgJobQueue, currentJob);
-
-    // TODO: Once jobs are implemented, uncomment and fill the following line
+    
     print_job_bg_start(currentJob.jobID, currentJob.pid, currentJob.command);
   }
 }
